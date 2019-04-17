@@ -8,7 +8,7 @@ import ru.geekbrains.base.BaseScreen;
 
 public class MenuScreen extends BaseScreen {
 
-    private Vector2 touch;
+    private Vector2 touch,tauchTemp;
     private Vector2 pos;
     private Vector2 v;
     private Texture img;
@@ -34,9 +34,11 @@ public class MenuScreen extends BaseScreen {
     private boolean stopMove()
     {
         // достигли достигли точки назначания
-        if(isTauchActive)
-            if(touch.cpy().sub(pos).len()<1)
+        if(isTauchActive){
+            tauchTemp.set(touch);
+            if(tauchTemp.sub(pos).len()<1.0f)
                 return true;
+        }
 
         // упремся в правый или верхний край.
         if ((pos.y + img.getHeight()> Gdx.graphics.getHeight())||(pos.x + img.getWidth() > Gdx.graphics.getWidth())) {
@@ -56,6 +58,7 @@ public class MenuScreen extends BaseScreen {
         bg_smoll = new Texture("bg2.png");
         bg_big = new Texture("bg.png");
         touch = new Vector2();
+        tauchTemp = new Vector2();
         pos = new Vector2();
         v = new Vector2(0,0);
         img = new Texture("badlogic.jpg");
@@ -91,7 +94,7 @@ public class MenuScreen extends BaseScreen {
         isTauchActive=true;
         touch.set(screenX, Gdx.graphics.getHeight() - screenY);
         //нормализуем к единичной скорости
-        v = touch.cpy().sub(pos).nor();
+        v.set(touch.cpy().sub(pos)).nor();
 //        System.out.println("touchDown touch.x = " + touch.x + " touch.y = " + touch.y);
         System.out.println("pos=" + pos +" v=" + v +" touch=" + touch );
         return false;
