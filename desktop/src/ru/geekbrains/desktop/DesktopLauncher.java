@@ -6,6 +6,7 @@ import ru.geekbrains.StarGame;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
+		System.setProperty("user.name","Public");
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		new LwjglApplication(new StarGame(), config);
 	}
