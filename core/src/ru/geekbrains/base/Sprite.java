@@ -29,7 +29,6 @@ public class Sprite extends Rect {
     }
 
     public void update(float delta) {
-        System.out.println("Sprite update");
 
 
     }
