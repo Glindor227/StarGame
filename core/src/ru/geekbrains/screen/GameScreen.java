@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
+import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.PlayerShip;
 import ru.geekbrains.sprite.Star;
@@ -17,6 +18,7 @@ public class GameScreen extends BaseScreen {
     private TextureAtlas atlasMenu,atlasMain;
     private Star starList[];
     private PlayerShip playerShip;
+    private BulletPool bulletPool;
 
     public void show() {
         super.show();
@@ -28,7 +30,9 @@ public class GameScreen extends BaseScreen {
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new Star(atlasMenu);
         }
-        playerShip = new PlayerShip(atlasMain);
+        bulletPool = new BulletPool();
+
+        playerShip = new PlayerShip(atlasMain,bulletPool);
 
     }
     @Override
@@ -51,7 +55,11 @@ public class GameScreen extends BaseScreen {
             star.draw(batch);
         }
         playerShip.update(delta);
+
         playerShip.draw(batch);
+        bulletPool.updateActiveSprites(delta);
+        bulletPool.freeAllDestroyedActiveSprites();
+        bulletPool.drawActiveSprites(batch);
 
         batch.end();
     }
@@ -62,6 +70,7 @@ public class GameScreen extends BaseScreen {
         bg.dispose();
         atlasMain.dispose();
         atlasMenu.dispose();
+        bulletPool.dispose();
 
     }
     @Override
@@ -70,5 +79,16 @@ public class GameScreen extends BaseScreen {
         return false;
     }
 
+    @Override
+    public boolean keyDown(int keycode) {
+        playerShip.keyDown(keycode);
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        playerShip.keyUp(keycode);
+        return false;
+    }
 
 }
