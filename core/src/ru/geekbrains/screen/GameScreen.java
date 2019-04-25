@@ -8,11 +8,15 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.List;
+
 import ru.geekbrains.base.BaseScreen;
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.EnemyPool;
 import ru.geekbrains.sprite.Background;
+import ru.geekbrains.sprite.Bullet;
+import ru.geekbrains.sprite.Enemy;
 import ru.geekbrains.sprite.PlayerShip;
 import ru.geekbrains.sprite.Star;
 import ru.geekbrains.utils.EnemyGenerator;
@@ -77,7 +81,36 @@ public class GameScreen extends BaseScreen {
     }
 
     private void checkCollisions() {
+        List<Bullet> bulletList = bulletPool.getActiveObjects();
+        List<Enemy> enemyList = enemyPool.getActiveObjects();
+        for (int i=0;i<enemyList.size();i++) {
+            Enemy enemy = enemyList.get(i);
+            if (!enemy.isOutside(mainShip)) {
+                System.out.println("Врезались в нас!!!!!!");
+                enemyPool.free(enemy);
+            }
+        }
 
+        for (int j = 0; j < bulletList.size(); j++) {
+            Bullet bullet = bulletList.get(j);
+            if (bullet.getOwner() instanceof Enemy) {
+                if (!bullet.isOutside(mainShip)) {
+                    System.out.println("Попали по нам!!!!!!");
+                    bulletPool.free(bullet);
+                }
+            }
+            else {
+//            System.out.println("корабль"+enemy.pos);
+                for (int i=0;i<enemyList.size();i++) {
+                    Enemy enemy = enemyList.get(i);
+                    if (!enemy.isOutside(bullet)) {
+                        System.out.println("Мы попали");
+                        enemyPool.free(enemy);
+                        bulletPool.free(bullet);
+                    }
+                }
+            }
+        }
     }
 
     private void freeAllDestroyedSprites() {
