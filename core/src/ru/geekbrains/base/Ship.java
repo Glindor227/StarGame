@@ -6,7 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
+import ru.geekbrains.pool.ExplosionPool;
 import ru.geekbrains.sprite.Bullet;
+import ru.geekbrains.sprite.Explosion;
 
 public class Ship extends Sprite {
 
@@ -15,6 +17,7 @@ public class Ship extends Sprite {
     protected Vector2 v;
     protected Vector2 v0;
     protected BulletPool bulletPool;
+    protected ExplosionPool explosionPool;
     protected TextureRegion bulletRegion;
     protected float bulletHeight;
     protected Vector2 bulletV;
@@ -23,6 +26,9 @@ public class Ship extends Sprite {
 
     protected float reloadInterval;
     protected float reloadTimer;
+
+    protected float damageAnimateInterval = 0.1f;
+    protected float damageAnimateTimer = damageAnimateInterval;
 
     public Ship(TextureRegion region, int rows, int cols, int frames) {
         super(region, rows, cols, frames);
@@ -47,11 +53,37 @@ public class Ship extends Sprite {
     public void update(float delta) {
         super.update(delta);
         pos.mulAdd(v, delta);
+        damageAnimateTimer += delta;
+        if (damageAnimateTimer >= damageAnimateInterval) {
+            frame = 0;
+        }
     }
 
     public void shoot() {
         Bullet bullet = bulletPool.obtain();
         bullet.set(this, bulletRegion, pos, bulletV, bulletHeight, worldBounds, damage);
         shootSound.play();
+    }
+
+    public void damage(int damage) {
+        frame = 1;
+        damageAnimateTimer = 0f;
+        hp -= damage;
+        System.out.println("Осталось здоровья("+this.getClass()+") " + hp);
+        if (hp <= 0) {
+            destroy();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        boom();
+        hp = 0;
+    }
+
+    private void boom() {
+        Explosion explosion = explosionPool.obtain();
+        explosion.set(this.getHeight(), this.pos);
     }
 }
