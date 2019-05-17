@@ -16,10 +16,12 @@ import ru.geekbrains.math.Rect;
 import ru.geekbrains.pool.BulletPool;
 import ru.geekbrains.pool.EnemyPool;
 import ru.geekbrains.pool.ExplosionPool;
+import ru.geekbrains.pool.HealthBoxPool;
 import ru.geekbrains.sprite.Background;
 import ru.geekbrains.sprite.Bullet;
 import ru.geekbrains.sprite.Enemy;
 import ru.geekbrains.sprite.GameOver;
+import ru.geekbrains.sprite.HealthBox;
 import ru.geekbrains.sprite.MainShip;
 import ru.geekbrains.sprite.NewGame;
 import ru.geekbrains.sprite.Star;
@@ -47,6 +49,7 @@ public class GameScreen extends BaseScreen {
     private BulletPool bulletPool;
     private EnemyPool enemyPool;
     private ExplosionPool explosionPool;
+    private HealthBoxPool healthBoxPool;
 
     private Music music;
     private Sound laserSound;
@@ -81,6 +84,11 @@ public class GameScreen extends BaseScreen {
         bulletPool = new BulletPool();
         explosionPool = new ExplosionPool(atlas, explosionSound);
         mainShip = new MainShip(atlas, bulletPool, explosionPool, laserSound);
+
+        healthBoxPool = new HealthBoxPool(new TextureRegion(new Texture("textures/health.png")));
+
+//        healthBox = new HealthBox(new TextureRegion(new Texture("textures/health.png")),worldBounds);
+
         for (int i = 0; i < starList.length; i++) {
             starList[i] = new TrackingStar(atlas, mainShip.getV());
         }
@@ -112,6 +120,7 @@ public class GameScreen extends BaseScreen {
             enemyGenerator.generate(delta, frags);
             bulletPool.updateActiveSprites(delta);
             enemyPool.updateActiveSprites(delta);
+            healthBoxPool.updateActiveSprites(delta);
         }
     }
 
@@ -119,6 +128,20 @@ public class GameScreen extends BaseScreen {
         if (state != State.PLAYING) {
             return;
         }
+
+        List<HealthBox> healthBoxes = healthBoxPool.getActiveObjects();
+        for (HealthBox healthBox : healthBoxes) {
+            if (healthBox.isDestroyed()) {
+                continue;
+            }
+            float minDist = healthBox.getHalfWidth() + mainShip.getHalfWidth();
+            if (healthBox.pos.dst(mainShip.pos) < minDist) {
+                mainShip.addHP(healthBox.getHealth());
+                healthBox.destroy();
+            }
+        }
+
+
         List<Enemy> enemyList = enemyPool.getActiveObjects();
         for (Enemy enemy : enemyList) {
             if (enemy.isDestroyed()) {
@@ -146,8 +169,13 @@ public class GameScreen extends BaseScreen {
                     }
                     if (enemy.isBulletCollision(bullet)) {
                         enemy.damage(bullet.getDamage());
+
                         bullet.destroy();
                         if (enemy.isDestroyed()) {
+                            if(Math.random()<0.1f){
+                                HealthBox healthBox =  healthBoxPool.obtain();
+                                healthBox.set(enemy.pos,new Vector2(0,-0.1f),0.05f,worldBounds,enemy.getDamage());
+                            }
                             frags++;
                         }
                         return;
@@ -182,6 +210,7 @@ public class GameScreen extends BaseScreen {
             mainShip.draw(batch);
             bulletPool.drawActiveSprites(batch);
             enemyPool.drawActiveSprites(batch);
+            healthBoxPool.drawActiveSprites(batch);
         } else if (state == State.GAME_OVER) {
             gameOver.draw(batch);
             newGame.draw(batch);
@@ -236,6 +265,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.dispose();
         enemyPool.dispose();
         explosionPool.dispose();
+        healthBoxPool.dispose();
         music.dispose();
         laserSound.dispose();
         bulletSound.dispose();
@@ -290,5 +320,7 @@ public class GameScreen extends BaseScreen {
         bulletPool.freeAllActiveSprites();
         enemyPool.freeAllActiveSprites();
         explosionPool.freeAllActiveSprites();
+        healthBoxPool.freeAllActiveSprites();
+
     }
 }
