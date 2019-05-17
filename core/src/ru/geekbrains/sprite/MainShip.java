@@ -12,6 +12,7 @@ import ru.geekbrains.pool.ExplosionPool;
 
 public class MainShip extends Ship {
 
+    private static final int HP = 100;
     private static final int INVALID_POINTER = -1;
 
     private boolean pressedRight;
@@ -19,8 +20,6 @@ public class MainShip extends Ship {
 
     private int rightPointer = INVALID_POINTER;
     private int leftPointer = INVALID_POINTER;
-
-    final static int fullHp = 10;
 
     public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound shootSound) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
@@ -32,13 +31,15 @@ public class MainShip extends Ship {
         this.reloadInterval = 0.2f;
         this.bulletV.set(0f, 0.5f);
         this.bulletHeight = 0.015f;
-        this.v0.set(0.5f, 0);
         this.damage = 1;
+        this.hp = HP;
+        this.v0.set(0.5f, 0);
     }
-    public void newShip(){
+
+    public void reset() {
         flushDestroy();
-        this.hp = fullHp;
-        v.setZero();
+        hp = HP;
+        pos.x = worldBounds.pos.x;
     }
 
     @Override

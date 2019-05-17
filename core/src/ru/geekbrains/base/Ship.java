@@ -69,7 +69,6 @@ public class Ship extends Sprite {
         frame = 1;
         damageAnimateTimer = 0f;
         hp -= damage;
-        System.out.println("Осталось здоровья("+this.getClass()+") " + hp);
         if (hp <= 0) {
             destroy();
         }
@@ -82,8 +81,16 @@ public class Ship extends Sprite {
         hp = 0;
     }
 
+    public int getHp() {
+        return hp;
+    }
+
     private void boom() {
         Explosion explosion = explosionPool.obtain();
         explosion.set(this.getHeight(), this.pos);
+    }
+
+    public Vector2 getV() {
+        return v;
     }
 }
