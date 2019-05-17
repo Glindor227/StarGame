@@ -166,4 +166,8 @@ public class MainShip extends Ship {
     private void stop() {
         v.setZero();
     }
+
+    public void addHP(int addHp){
+        hp +=addHp;
+    }
 }

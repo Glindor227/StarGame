@@ -64,13 +64,63 @@ public class EnemyGenerator {
     }
 
     public void generate(float delta, int frags) {
+        int stageOld = stage;
         stage = frags / 10 + 1;
+        if(stageOld!=stage){
+            generateInterval = generateInterval - generateInterval/10;
+        }
+        stageOld = stage;
+
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
             Enemy enemy = enemyPool.obtain();
-            float type = (float) Math.random();
-            if (type < 0.5f) {
+            float type = (float) Math.random() * 100;
+            if(type>(100-(15+5*(stage-1)))){
+                //большой
+                enemy.set(
+                        enemyBigRegion,
+                        enemyBigV,
+                        bulletRegion,
+                        ENEMY_BIG_BULLET_HEIGHT,
+                        ENEMY_BIG_BULLET_VY,
+                        ENEMY_BIG_DAMAGE,
+                        ENEMY_BIG_RELOAD_INTERVAL,
+                        ENEMY_BIG_HEIGHT,
+                        ENEMY_BIG_HP
+                );
+
+            }else if(type>(100-(15+5*(stage-1))-(20+10*(stage-1)))){
+                //средний
+                enemy.set(
+                        enemyMediumRegion,
+                        enemyMediumV,
+                        bulletRegion,
+                        ENEMY_MEDIUM_BULLET_HEIGHT,
+                        ENEMY_MEDIUM_BULLET_VY,
+                        ENEMY_MEDIUM_DAMAGE,
+                        ENEMY_MEDIUM_RELOAD_INTERVAL,
+                        ENEMY_MEDIUM_HEIGHT,
+                        ENEMY_MEDIUM_HP
+                );
+            }else {
+                enemy.set(
+                        enemySmallRegion,
+                        enemySmallV,
+                        bulletRegion,
+                        ENEMY_SMALL_BULLET_HEIGHT,
+                        ENEMY_SMALL_BULLET_VY,
+                        ENEMY_SMALL_DAMAGE,
+                        ENEMY_SMALL_RELOAD_INTERVAL,
+                        ENEMY_SMALL_HEIGHT,
+                        ENEMY_SMALL_HP
+                );
+                //мелкий
+            }
+
+            /*
+
+            if (type < (0.5f)) {
                 enemy.set(
                         enemySmallRegion,
                         enemySmallV,
@@ -106,7 +156,7 @@ public class EnemyGenerator {
                         ENEMY_BIG_HEIGHT,
                         ENEMY_BIG_HP
                 );
-            }
+            }*/
             enemy.pos.x = Rnd.nextFloat(worldBounds.getLeft() + enemy.getHalfWidth(),
                     worldBounds.getRight() - enemy.getHalfWidth());
             enemy.setBottom(worldBounds.getTop());
